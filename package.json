@@ -1,0 +1,13 @@
+{
+  "name": "nisa-ai-root",
+  "version": "1.0.0",
+  "description": "Root package.json for Vercel API deployment",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "echo 'Root package.json'"
+  },
+  "dependencies": {
+    "axios": "^1.9.0"
+  }
+}
