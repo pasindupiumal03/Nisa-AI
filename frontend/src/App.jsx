@@ -68,17 +68,8 @@ function Waveform({ active }) {
   );
 }
 
-const exampleQuestions = [
-  { text: "Can you help me relax with a calming story?", emotion: "calm" },
-  { text: "Tell me something amazing that happened today!", emotion: "excited" },
-  { text: "I'm feeling a bit down, can you cheer me up?", emotion: "sad" },
-  { text: "Why do people get angry sometimes?", emotion: "angry" },
-  { text: "Share a happy memory with me!", emotion: "happy" },
-];
-
 export default function App() {
   const [messages, setMessages] = useState([]);
-  const [selectedExample, setSelectedExample] = useState(null);
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -114,7 +105,6 @@ export default function App() {
 
   // Send message (text or voice)
   const sendMessage = async (text) => {
-    setSelectedExample(null);
     setLoading(true);
     setMessages((msgs) => [...msgs, { from: "user", text }]);
     setValue(""); // Clear input after sending
@@ -315,95 +305,216 @@ export default function App() {
     </div>
   );
 
-    return (
+  return (
     <div className="min-h-screen flex flex-col w-full items-center justify-center bg-black text-white p-6 relative overflow-hidden">
-      {/* Google Fonts */}
+      {/* Google Fonts for Playfair Display */}
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
-
-      {/* Gradient background */}
+      {/* Warm radial gradient glow behind chat box */}
       <div style={{
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '120vw', height: '120vh', zIndex: 0, pointerEvents: 'none',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '120vw',
+        height: '120vh',
+        zIndex: 0,
+        pointerEvents: 'none',
         background: 'radial-gradient(circle at 60% 40%, #a259ff 0%, #3f51b5 40%, #ff6f91 100%)',
-        opacity: 0.32, filter: 'blur(80px)'
+        opacity: 0.32,
+        filter: 'blur(80px)',
       }} />
-
-      {/* Animated background blobs */}
+      <style>{`
+        @keyframes pulse-glow {
+          0% { box-shadow: 0 0 16px 4px #ffe06633; }
+          100% { box-shadow: 0 0 32px 8px #ffe06699; }
+        }
+        @keyframes mic-pulse {
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+          50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.45; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+        }
+        .animated-gradient-text {
+          background: linear-gradient(90deg, #3fd0ff, #7f7fff, #c084fc, #3fd0ff);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          color: transparent;
+          animation: gradient-move 3.5s ease-in-out infinite;
+          font-weight: 700;
+          font-size: 3.2rem;
+          text-align: center;
+          margin: 0;
+          padding: 0;
+          letter-spacing: 0.01em;
+        }
+        @keyframes gradient-move {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        /* Chat log custom scrollbar */
+        .nisa-chat-log {
+          overflow-y: auto;
+          max-height: 400px;
+          scrollbar-width: thin;
+          scrollbar-color: #6c5ce7 #0000;
+        }
+        .nisa-chat-log::-webkit-scrollbar {
+          width: 8px;
+          background: transparent;
+        }
+        .nisa-chat-log::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #6c5ce7 0%, #00cec9 100%);
+          border-radius: 8px;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .nisa-chat-log:hover::-webkit-scrollbar-thumb {
+          opacity: 1;
+        }
+        .nisa-chat-log::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        /* Hide scrollbar by default in Firefox */
+        .nisa-chat-log {
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+        }
+        .nisa-chat-log:hover {
+          scrollbar-color: #6c5ce7 #0000;
+        }
+        @media (max-width: 900px) {
+          .nisa-chat-log {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+          }
+        }
+        @media (max-width: 700px) {
+          .nisa-chat-log {
+            max-height: 50vh !important;
+          }
+          .backdrop-blur-2xl {
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-[128px] animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[128px] animate-pulse delay-700" />
+        <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-[96px] animate-pulse delay-1000" />
       </div>
-
-      {/* Header & Example prompts */}
-      <div className="text-center space-y-3 mb-8" style={{ maxWidth: 700, margin: '0 auto' }}>
-        <h1 className="animated-gradient-text">Hi, I'm Nisa</h1>
-        <p className="text-sm text-white/40">Type or speak your question</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: 16 }}>
-          {exampleQuestions.map((q, i) => (
-            <button
-              key={i}
-              onClick={() => { setSelectedExample(i); sendMessage(q.text); }}
-              style={{
-                padding: '0.5rem 1.2rem', borderRadius: 18, border: 'none', fontWeight: 500,
-                fontSize: '1rem', cursor: 'pointer', background: selectedExample === i
-                  ? 'linear-gradient(90deg, #3fd0ff 0%, #c084fc 100%)'
-                  : 'rgba(255,255,255,0.07)', color: selectedExample === i ? '#fff' : '#aeeaff',
-                boxShadow: selectedExample === i ? '0 2px 12px 2px #3fd0ff44' : 'none',
-                transition: 'all 0.2s', outline: selectedExample === i ? '2px solid #3fd0ff' : 'none'
-              }}>
-              {q.text}
-            </button>
-          ))}
+      <div
+        className="w-full max-w-2xl mx-auto relative" style={{ zIndex: 1, marginTop: '3.5rem' }}>
+        <div
+          className="text-center space-y-3 mb-8"
+          style={{ maxWidth: 700, margin: '0 auto' }}
+        >
+          <h1 className="animated-gradient-text">
+            Hi, I'm Nisa
+          </h1>
+          <p className="text-sm text-white/40">Type or speak your question</p>
         </div>
-      </div>
-
-      {/* Chat container */}
-      <div className="relative backdrop-blur-2xl bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-2xl"
-        style={{ width: '100%', maxWidth: 700, minWidth: 300, margin: '0 auto',
-          display: 'flex', flexDirection: 'column', minHeight: '60vh', height: '65vh', justifyContent: 'flex-end' }}>
-
-        {/* Chat messages */}
-        <div className="p-4 nisa-chat-log" style={{ minHeight: 300, flex: 1, overflowY: 'auto',
-          maxHeight: 'calc(65vh - 80px)', padding: '2rem 2.2rem 1.2rem 2.2rem',
-          boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-
-          {messages.length === 0 ? <div style={{ height: 120 }} /> : (
-            <>
-              {messages.map((msg, i) => (
-                <motion.div key={i} className={`mb-2 flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
-                  initial={{ opacity: 0, y: 32, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.7, delay: i * 0.05 }}>
-                  <span className="px-4 py-2"
-                    style={msg.from === "user"
-                      ? { background: "#2563eb", color: "#fff", fontWeight: 600,
-                          fontSize: '1.08rem', lineHeight: 1.5, borderRadius: 18, fontFamily: 'inherit' }
-                      : getBotBubbleStyle(msg.emotion)}>
-                    {msg.text}
-                  </span>
-                </motion.div>
-              ))}
-              {isTyping && (
-                <motion.div className="mb-2 flex justify-start" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                  <span className="px-4 py-2" style={{ background: 'rgba(255,255,255,0.10)', color: '#fff',
-                    fontWeight: 600, fontSize: '1.08rem', lineHeight: 1.5,
-                    textShadow: '0 1px 8px #000, 0 0px 2px #000', boxShadow: '0 0 12px 2px #222a',
-                    minWidth: 60, display: 'flex', alignItems: 'center', borderRadius: 32, fontFamily: 'serif' }}>
-                    Nisa is typing <TypingDots />
-                  </span>
-                </motion.div>
-              )}
-            </>
-          )}
-          <div ref={chatEndRef} />
+        <div
+          className="relative backdrop-blur-2xl bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-2xl"
+          style={{
+            width: '100%',
+            maxWidth: 700,
+            minWidth: 300,
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '60vh',
+            height: '65vh',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <div
+            className="p-4 nisa-chat-log"
+            style={{
+              minHeight: 300,
+              flex: 1,
+              overflowY: 'auto',
+              maxHeight: 'calc(65vh - 80px)',
+              padding: '2rem 2.2rem 1.2rem 2.2rem',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}
+          >
+            {messages.length === 0 ? (
+              <div style={{ height: 120 }} />
+            ) : (
+              <>
+                {messages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    className={`mb-2 flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+                    initial={{ opacity: 0, y: 32, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.7, delay: i * 0.05 }}
+                  >
+                    <span
+                      className={`px-4 py-2`}
+                      style={
+                        msg.from === "user"
+                          ? { background: "#2563eb", color: "#fff", fontWeight: 600, fontSize: '1.08rem', lineHeight: 1.5, borderRadius: 18, fontFamily: 'inherit' }
+                          : getBotBubbleStyle(msg.emotion)
+                      }
+                    >
+                      {msg.text}
+                    </span>
+                  </motion.div>
+                ))}
+                {isTyping && (
+                  <motion.div
+                    className="mb-2 flex justify-start"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <span
+                      className="px-4 py-2"
+                      style={{
+                        background: 'rgba(255,255,255,0.10)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '1.08rem',
+                        lineHeight: 1.5,
+                        textShadow: '0 1px 8px #000, 0 0px 2px #000',
+                        boxShadow: '0 0 12px 2px #222a',
+                        minWidth: 60,
+                        display: 'flex',
+                        alignItems: 'center',
+                        borderRadius: 32,
+                        fontFamily: `serif`,
+                      }}
+                    >
+                      Nisa is typing <TypingDots />
+                    </span>
+                  </motion.div>
+                )}
+              </>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+          <div
+            className="p-4 border-t border-white/[0.05] flex items-center justify-center"
+            style={{
+              background: 'rgba(255,255,255,0.01)',
+              position: 'sticky',
+              bottom: 0,
+              zIndex: 2,
+              padding: '1.2rem 2.2rem',
+              boxSizing: 'border-box',
+            }}
+          >
+            {InputArea}
+          </div>
+          <audio ref={audioRef} />
         </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-white/[0.05] flex items-center justify-center"
-          style={{ background: 'rgba(255,255,255,0.01)', position: 'sticky', bottom: 0, zIndex: 2,
-            padding: '1.2rem 2.2rem', boxSizing: 'border-box' }}>
-          {InputArea}
-        </div>
-        <audio ref={audioRef} />
       </div>
     </div>
   );
