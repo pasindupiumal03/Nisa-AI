@@ -130,7 +130,7 @@ export default function App() {
         setIsTyping(false);
         // Get TTS audio
         const ttsRes = await axios.post(
-          '/api/tts',
+          `${API_URL}/tts`,
           { text: reply, voice_id: DEFAULT_VOICE_ID },
           { responseType: "arraybuffer" }
         );
@@ -315,7 +315,7 @@ export default function App() {
     </div>
   );
 
-  return (
+    return (
     <div className="min-h-screen flex flex-col w-full items-center justify-center bg-black text-white p-6 relative overflow-hidden">
       {/* Google Fonts */}
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
@@ -328,40 +328,33 @@ export default function App() {
         opacity: 0.32, filter: 'blur(80px)'
       }} />
 
-      {/* Gradient text animation style */}
-      <style>{`
-        .animated-gradient-text {
-          background: linear-gradient(90deg, #3fd0ff, #7f7fff, #c084fc, #3fd0ff);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          color: transparent;
-          animation: gradient-move 3.5s ease-in-out infinite;
-          font-weight: 700;
-          font-size: 3.2rem;
-          text-align: center;
-          margin: 0;
-          padding: 0;
-          letter-spacing: 0.01em;
-        }
-        @keyframes gradient-move {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
-
       {/* Animated background blobs */}
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-[128px] animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[128px] animate-pulse delay-700" />
       </div>
 
-      {/* Header */}
+      {/* Header & Example prompts */}
       <div className="text-center space-y-3 mb-8" style={{ maxWidth: 700, margin: '0 auto' }}>
         <h1 className="animated-gradient-text">Hi, I'm Nisa</h1>
         <p className="text-sm text-white/40">Type or speak your question</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: 16 }}>
+          {exampleQuestions.map((q, i) => (
+            <button
+              key={i}
+              onClick={() => { setSelectedExample(i); sendMessage(q.text); }}
+              style={{
+                padding: '0.5rem 1.2rem', borderRadius: 18, border: 'none', fontWeight: 500,
+                fontSize: '1rem', cursor: 'pointer', background: selectedExample === i
+                  ? 'linear-gradient(90deg, #3fd0ff 0%, #c084fc 100%)'
+                  : 'rgba(255,255,255,0.07)', color: selectedExample === i ? '#fff' : '#aeeaff',
+                boxShadow: selectedExample === i ? '0 2px 12px 2px #3fd0ff44' : 'none',
+                transition: 'all 0.2s', outline: selectedExample === i ? '2px solid #3fd0ff' : 'none'
+              }}>
+              {q.text}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Chat container */}
@@ -374,28 +367,7 @@ export default function App() {
           maxHeight: 'calc(65vh - 80px)', padding: '2rem 2.2rem 1.2rem 2.2rem',
           boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 
-          {messages.length === 0 ? (
-            <>
-              <div style={{ height: 32 }} />
-              <div className="flex flex-wrap gap-2 justify-center mt-2">
-                {exampleQuestions.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setSelectedExample(i); sendMessage(q.text); }}
-                    style={{
-                      padding: '0.5rem 1.2rem', borderRadius: 18, border: 'none', fontWeight: 500,
-                      fontSize: '1rem', cursor: 'pointer', background: selectedExample === i
-                        ? 'linear-gradient(90deg, #3fd0ff 0%, #c084fc 100%)'
-                        : 'rgba(255,255,255,0.07)', color: selectedExample === i ? '#fff' : '#aeeaff',
-                      boxShadow: selectedExample === i ? '0 2px 12px 2px #3fd0ff44' : 'none',
-                      transition: 'all 0.2s', outline: selectedExample === i ? '2px solid #3fd0ff' : 'none'
-                    }}>
-                    {q.text}
-                  </button>
-                ))}
-              </div>
-            </>
-          ) : (
+          {messages.length === 0 ? <div style={{ height: 120 }} /> : (
             <>
               {messages.map((msg, i) => (
                 <motion.div key={i} className={`mb-2 flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
