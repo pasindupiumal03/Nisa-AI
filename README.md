@@ -34,8 +34,7 @@ Create `.env` files in both `backend/` and `frontend/`:
 
 #### backend/.env
 ```
-OPENAI_API_KEY=REMOVED_SECRET
-ELEVENLABS_API_KEY=sk_954fe5c47cda7a8544b33914b67e3b0be99323968fb25d31
+
 ```
 
 #### frontend/.env
