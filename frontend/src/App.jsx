@@ -130,7 +130,7 @@ export default function App() {
         setIsTyping(false);
         // Get TTS audio
         const ttsRes = await axios.post(
-          `${API_URL}/tts`,
+          '/api/tts',
           { text: reply, voice_id: DEFAULT_VOICE_ID },
           { responseType: "arraybuffer" }
         );
